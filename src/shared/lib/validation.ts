@@ -27,6 +27,12 @@ export const pokemonTeamValidation: RegisterOptions<RegistrationFormData, 'pokem
 		if (!team || team.length !== 4 || team.some(pokemon => !pokemon)) {
 			return 'You must select exactly 4 Pokémon'
 		}
+
+		const uniquePokemon = new Set(team)
+		if (uniquePokemon.size !== team.length) {
+			return 'Your team cannot contain duplicate Pokémon'
+		}
+
 		return true
 	}
 }

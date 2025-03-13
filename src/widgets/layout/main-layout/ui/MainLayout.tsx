@@ -27,7 +27,6 @@ export function MainLayout() {
 		mode: 'all'
 	})
 
-	
 	const firstName = watch('firstName')
 	const lastName = watch('lastName')
 
@@ -92,8 +91,8 @@ export function MainLayout() {
 				isOpen={showModal}
 				onClose={() => setShowModal(false)}
 				pokemon={selectedPokemon}
-				playerName={firstName} 
-				playerSurname={lastName} 
+				playerName={firstName}
+				playerSurname={lastName}
 			/>
 		</div>
 	)

@@ -11,6 +11,41 @@ interface PokemonModalProps {
 	onSave?: (pokemon: any[]) => void
 }
 
+const Toast = ({ message, onClose }: { message: string; onClose: () => void }) => {
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			onClose()
+		}, 3000)
+
+		return () => clearTimeout(timer)
+	}, [onClose])
+
+	return (
+		<div className='fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 shadow-md rounded flex justify-between items-center z-50'>
+			<div>{message}</div>
+			<button
+				onClick={onClose}
+				className='ml-4 text-red-700'
+			>
+				<svg
+					xmlns='http://www.w3.org/2000/svg'
+					fill='none'
+					viewBox='0 0 24 24'
+					strokeWidth='1.5'
+					stroke='currentColor'
+					className='size-5'
+				>
+					<path
+						strokeLinecap='round'
+						strokeLinejoin='round'
+						d='M6 18 18 6M6 6l12 12'
+					/>
+				</svg>
+			</button>
+		</div>
+	)
+}
+
 export const PokemonModal = ({
 	isOpen,
 	onClose,
@@ -20,14 +55,33 @@ export const PokemonModal = ({
 	onSave
 }: PokemonModalProps) => {
 	const [pokemon, setPokemon] = useState<any[]>([])
+	const [hasDuplicates, setHasDuplicates] = useState<boolean>(false)
+	const [showToast, setShowToast] = useState<boolean>(false)
 
 	useEffect(() => {
 		if (isOpen && initialPokemon && initialPokemon.length > 0) {
-			setPokemon([...initialPokemon])
-		}
-	}, [initialPokemon, isOpen])
+			const pokemonIds = initialPokemon.map(p => p.id)
+			const uniqueIds = new Set(pokemonIds)
 
-	if (!isOpen) return null
+			const duplicatesExist = uniqueIds.size !== pokemonIds.length
+			setHasDuplicates(duplicatesExist)
+
+			if (!duplicatesExist) {
+				setPokemon([...initialPokemon])
+			} else {
+				setShowToast(true)
+				onClose()
+			}
+		}
+	}, [initialPokemon, isOpen, onClose])
+
+	if (!isOpen || hasDuplicates)
+		return showToast ? (
+			<Toast
+				message='Your team cannot contain duplicate Pokémon'
+				onClose={() => setShowToast(false)}
+			/>
+		) : null
 
 	const handleDragEnd = (result: DropResult) => {
 		if (!result.destination) return
@@ -120,6 +174,9 @@ export const PokemonModal = ({
 							{playerName} {playerSurname}
 						</p>
 						<p className='text-sm text-gray-500'>Pokémon Trainer</p>
+						<p className='text-xs text-amber-600 mt-1'>
+							Note: Duplicate Pokémon are not allowed in teams
+						</p>
 					</div>
 
 					<div className='flex space-x-2'>
